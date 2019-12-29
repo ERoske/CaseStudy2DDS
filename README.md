@@ -2,14 +2,9 @@
 ## PURPOSE: Public Repository for Classwork
 ## PROJECT: Analyze Budweiser craft beer/brewery data
 
-Files:
-
-Beers.CSV                <b>Data: Beer</B>
-
-Breweries.CSV            Data: Breweries
-
-Edward_Roske_Unit8.RMD   R Markdown
-
-Edward_Roske.Unit8.HTML  Knit HTML File
-
-Presentation.PPTX        Presentation: Budweiser Slides
+<B>Files:</B><BR>
+<B>Beers.CSV</B>                Data: Beer<BR>
+<B>Breweries.CSV</B>            Data: Breweries<BR>
+<B>Edward_Roske_Unit8.RMD</B>   R Markdown<BR>
+<B>Edward_Roske.Unit8.HTML</B>  Knit HTML File<BR>
+<B>Presentation.PPTX</B>        Presentation: Budweiser Slides<BR>
