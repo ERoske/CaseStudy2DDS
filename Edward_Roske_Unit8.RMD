@@ -1,0 +1,367 @@
+---
+title: "Budweiser Analysis"
+author: "Edward Roske"
+date: "12/29/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Presentation for Budweiser leadership
+* **CEO:** Carlos Brito
+* **CFO:** Felipe Dutra  
+
+# Craft Beer Analysis
+## This presentation is to report and analyze craft beer data to identify potential options for Budweiser's strategic direction.  
+
+***
+
+
+```{r header, echo=FALSE, collapse=TRUE, include=FALSE}
+# MSDS6306 - Unit 8
+# Edward Roske
+# 12/15/2019
+
+# Tidyverse
+library (tidyverse)
+
+# Graphics
+library (ggplot2)
+library (ggthemes)
+library (usmap)
+
+# XML, JSON, strings
+library (rvest) #html_table, html_node
+library (stringi)
+library (XML) #xml_Parse
+library (httr)
+library (plyr)
+library (tm) #text mining library provides the stopwords() function
+library (tidyr)
+library (jsonlite)
+library (dplyr)
+
+# Statistics
+library (class)
+library (caret)
+library (e1071) #Naive Bayes
+```
+
+## Begin by loading the data and preparing it
+
+```{r prepare}
+# Unit 8: Beer Analysis for Budweiser
+
+# Read dataset
+# Some fields (State in Breweries) start with spaces, so remove them
+url <- "https://raw.githubusercontent.com/ERoske/MSDS-6306/master/"
+beers <- read.csv(paste0(url,"Beers.csv"), strip.white=TRUE, sep=",")
+breweries <- read.csv(paste0(url,"Breweries.csv"), strip.white=TRUE, sep=",")
+beers$Ounces <- as.factor(beers$Ounces)
+
+# Add variables
+# Ale, IPA, or neither
+beers$Ale <- "No"
+beers$Ale[grep("Ale", beers$Style)] <- "Other"
+beers$Ale[grep("IPA", beers$Style)] <- "IPA"
+```
+
+***
+
+## **Question 3:**
+## Address the missing values in each column.
+## Missing values: ABV, IBU, Style
+## Should we leave empty or fill with averages?
+
+```{r Q3}
+sum(is.na(beers$ABV))
+sum(is.na(beers$IBU))
+sum(beers$Style=="")
+```
+
+## **Answer 3:**
+## For now, we will replace with overall medians (or generic "Other").  
+
+```{r A3}
+beers$ABV[is.na(beers$ABV)] <- median(beers$ABV, na.rm=TRUE)
+beers$IBU[is.na(beers$IBU)] <- median(beers$IBU, na.rm=TRUE)
+beers$Style[beers$Style==""] <- "Other"
+```
+***
+## **Question 1:**
+## How many breweries are present in each state?
+
+```{r Q1}
+state_table <- as.data.frame(table(breweries$State))
+state_summary <- merge(statepop, state_table, by.x="abbr", by.y="Var1")
+state_summary$PerCapita <- round(state_summary$pop_2015 / state_summary$Freq)
+
+```
+
+## **Answer 1:**
+## Here is the data summarized by State (and District of Columbia):
+
+```{r A1}
+# Table: Brewery Count
+knitr::kable(state_table,
+    caption = "Breweries present in each state")
+
+# Graph: Brewery Count
+plot_usmap(data=state_summary, values="Freq", color="black") +
+    scale_fill_continuous(
+        low="white", high="red", name="Breweries", label=scales::comma
+    ) +
+    theme(legend.position="right") +
+    labs(title="Brewery Analysis by State") +
+    theme(plot.title=element_text(size=18, hjust=0.5, face="bold"))
+```
+
+***
+
+## **Question 2:**
+## Merge beer data with the breweries data.  
+
+``` {r Q2}
+merged <- merge(beers, breweries, by.x="Brewery_id", by.y="Brew_ID")
+names(merged)[1] <- 'Brewery_ID'
+names(merged)[2] <- 'Beer_Name'
+names(merged)[9] <- 'Brewery_Name'
+
+# Print first 6 and last 6 rows of the merged file
+#head(merged, n=6)
+#tail(merged, n=6)
+
+data <- rbind(head(merged, n=6),
+          tail(merged, n=6))
+```
+
+## **Answer 2:**
+## Here are the first 6 and last 6 rows of the merged file.
+
+``` {r A2}
+knitr::kable(data,
+    caption = "Merged Beer/Brewery Data")
+```
+
+***
+
+## **Question 4:**
+## Compute the median alcohol content and IBU for each state.
+## Print and graph the ABV and IBU for each state.
+
+``` {r Q4}
+state_medians <-
+    merged %>%
+    group_by(State) %>%
+    dplyr::summarise(IBU = median(IBU),
+                     ABV = median(ABV))
+state_summary <- merge(state_summary, state_medians, by.x="abbr", by.y="State")
+
+## Print a table with ABV and then IBU for each state.
+knitr::kable(state_summary,
+    caption = "Median Alcohol Content and IBU for each state")
+
+# Graph IBUs and ABVs
+# IBU
+ggplot(state_summary,
+       aes(x=abbr,
+           y=IBU,
+           fill=IBU)) +
+    geom_bar(stat="identity") +
+    scale_fill_gradient(low="blue", high="red") +
+    labs(x="States",
+         y="IBU",
+         title="IBU Analysis by State") +
+    theme_economist_white() +
+    theme(legend.position="none",
+          plot.title=element_text(size=18, hjust=0.5, face="bold"),
+          axis.title.x=element_text(size=12, face="bold"),
+          axis.title.y=element_text(size=12, face="bold"),
+          axis.text.x=element_text(size=10),
+          axis.text.y=element_text(size=6),
+    ) +
+    coord_flip()
+# ABV
+ggplot(state_summary,
+       aes(x=abbr,
+           y=ABV,
+           fill=ABV)) +
+    geom_bar(stat="identity") +
+    scale_fill_gradient(low="blue", high="red") +
+    labs(x="States",
+         y="IBU",
+         title="ABV Analysis by State") +
+    theme_economist_white() +
+    theme(legend.position="none",
+          plot.title=element_text(size=18, hjust=0.5, face="bold"),
+          axis.title.x=element_text(size=12, face="bold"),
+          axis.title.y=element_text(size=12, face="bold"),
+          axis.text.x=element_text(size=10),
+          axis.text.y=element_text(size=6),
+    ) +
+    coord_flip()
+```
+
+## **Answer 4:**
+## For IBU, the highest states are West Virginia, Mississippi, Delaware, and Alabama.
+## For ABV, there is much more variance, but the highest states are District of Columbia, West Virginia, Alabama, and Kentucky.
+## In general, the Southern states tend to have higher bitterness and alcohol content.
+
+***
+
+## **Question 5:**
+## Which state has the maximum alcoholic (ABV) beer?
+## Which state has the most bitter (IBU) beer?
+
+``` {r A5}
+paste("Top ABV State:",
+    state_summary[order(-state_summary$ABV),"abbr"][1])
+paste("Top IBU State:",
+      state_summary[order(-state_summary$IBU),"abbr"][1])
+```
+
+## **Answer 5:**
+## Assuming they want maximum medians from Question 4 and not a single beer outlier,
+* The top ABV state is DC.
+* The top IBU state is WV.  
+
+***
+
+## **Question 6:**
+## Comment on the summary statistics and distribution of the ABV variable.
+
+``` {r Q6}
+summary(merged$ABV)
+sd(merged$ABV)
+ggplot(merged,
+       aes(x=Ounces,
+           y=ABV,
+           fill=Ounces)) +
+    geom_boxplot() +
+    labs(x="Ounces",
+         y="ABV",
+         title="ABV Analysis by Ounces") +
+    scale_y_continuous(name="ABV", breaks=seq(0.0,0.15,by=.01)) +
+    theme_economist_white() +
+    theme(legend.position="none",
+          plot.title=element_text(size=18, hjust=0.5, face="bold"),
+          axis.title.x=element_text(size=12, face="bold"),
+          axis.title.y=element_text(size=12, face="bold"),
+          axis.text.x=element_text(size=10),
+          axis.text.y=element_text(size=10),
+    )
+```
+
+## **Answer 6:**
+## The median ABV is 5.60%. The mean is 5.97% implying a right-skewed distribution.
+## The interquartile range is fairly tight ranging from 5.0%-6.7%.
+## 12-Ounce beers tend to have the lowest average ABV.
+## 19.2-Ounce beers tend to have the highest average ABV.
+
+***
+
+## **Question 7:**
+## Is there an apparent relationship between the bitterness of the beer and its alcoholic content?
+## Draw a scatter plot.
+## Make your best judgment of a relationship and EXPLAIN your answer.
+
+``` {r Q7}
+# All Styles
+MergedClean <- merged %>%
+    filter(!ABV==median(beers$ABV, na.rm=TRUE) &
+           !IBU==median(beers$IBU, na.rm=TRUE))
+ggplot(MergedClean, aes(x=IBU, y=ABV, color=Ale)) +
+    scale_x_continuous(name="IBU", breaks=seq(0,140,by=10), limits=c(0, 140)) +
+    scale_y_continuous(name="ABV", breaks=seq(0,0.13,by=.01), limits=c(0, 0.13)) +
+    ggtitle("ABV vs IBU Analysis") +
+    geom_point(position="jitter") +
+    geom_smooth(color="red", size=2, se=FALSE, method="lm") +
+    #scale_y_continuous(name="ABV", breaks=seq(0.0,0.15,by=.01)) +
+    theme_economist_white() +
+    theme(plot.title=element_text(size=18, hjust=0.5, face="bold"),
+          axis.title.x=element_text(size=12, face="bold"),
+          axis.title.y=element_text(size=12, face="bold"),
+          axis.text.x=element_text(size=10),
+          axis.text.y=element_text(size=10),
+    )
+# Ale comparisons
+Ales <- MergedClean %>% filter(!Ale=="No")
+ggplot(data=Ales, aes(x=IBU, y=ABV, color=Ale)) +
+    scale_x_continuous(name="IBU", breaks=seq(0,140,by=10), limits=c(0, 140)) +
+    scale_y_continuous(name="ABV", breaks=seq(0,0.13,by=.01), limits=c(0, 0.13)) +
+    ggtitle("ABV vs IBU Analysis") +
+    geom_point(position="jitter") +
+    geom_smooth(size=2, se=FALSE, method="lm") +
+    #scale_y_continuous(name="ABV", breaks=seq(0.0,0.15,by=.01)) +
+    theme_economist_white() +
+    theme(plot.title=element_text(size=18, hjust=0.5, face="bold"),
+          axis.title.x=element_text(size=12, face="bold"),
+          axis.title.y=element_text(size=12, face="bold"),
+          axis.text.x=element_text(size=10),
+          axis.text.y=element_text(size=10),
+    )
+```
+
+## **Answer 7:**
+## There is a direct relationship (positive correlation according to the graph) of IBU and ABV.
+## In general, the higher the IBU (Bitterness Units), the higher the ABV.
+## For IPAs, it is even more impactful that as IBUs increase, ABV increases even more.
+
+***
+
+## **Question 8:**
+## Investigate the difference with respect to IBU and ABV between Ales (IPA and Others)
+## use KNN classification to investigate this relationship.
+
+``` {r Q8}
+# kNN Classification
+knnClassifications <-
+    knn.cv(Ales[,4:5],
+           Ales$Ale,
+           k=round(sqrt(nrow(Ales))))
+(knnCM <- confusionMatrix(table(knnClassifications, Ales$Ale)))
+```
+
+## **Answer 8:**
+## Based on K-NN Analysis, we can predict with greater than 81% Accuracy
+## if something is an IPA or another Ale based on IBU & ABV.
+
+****
+
+## **Question 9:**
+## Find one other useful inference.
+## Graph: Per Capita
+
+``` {r Q9}
+plot_usmap(data=state_summary, values="PerCapita", color="black") +
+    scale_fill_continuous(
+        low="red", high="green", name="Breweries/Capita", label=scales::comma
+    ) +
+    theme(legend.position="right") +
+    labs(title="Brewery Analysis by State:",
+         subtitle="Per Capita as of 2015") +
+    theme(plot.title=element_text(size=18, hjust=0.5, face="bold"),
+          plot.subtitle=element_text(size=18, hjust=0.5),
+    )
+```
+
+## **Answer 9:**
+## Red areas are oversaturated (too many breweries per capita).
+## Green areas need new craft breweries.
+## I advise that we buy existing craft breweries (or open new ones) in 
+## Tennessee and New Jersey.
+## Other possibilities could include West Virginia and Nevada.
+
+***
+
+## **Observation**
+## This data seems to be from a few years ago (2015?). In the years since, 
+## New Jersey has seen a major increase in craft breweries. Here's an Interesting article:
+<https://www.northjersey.com/story/life/food/2019/01/03/north-jerseys-craft-brewery-scene-has-grown-more-than-any-other-state/2474070002/>
+
+```
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
