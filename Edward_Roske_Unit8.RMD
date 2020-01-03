@@ -337,11 +337,11 @@ knnClassifications <-
 ``` {r Q9}
 plot_usmap(data=state_summary, values="PerCapita", color="black") +
     scale_fill_continuous(
-        low="red", high="green", name="Breweries/Capita", label=scales::comma
+        low="red", high="green", name="Population/Breweries", label=scales::comma
     ) +
     theme(legend.position="right") +
     labs(title="Brewery Analysis by State:",
-         subtitle="Per Capita as of 2015") +
+         subtitle="Population per Brewery as of 2015") +
     theme(plot.title=element_text(size=18, hjust=0.5, face="bold"),
           plot.subtitle=element_text(size=18, hjust=0.5),
     )
