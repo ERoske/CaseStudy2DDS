@@ -1,6 +1,7 @@
 # MSDS-6306
 ## PURPOSE: Public Repository for Classwork
 ## PROJECT: Analyze Budweiser craft beer/brewery data
+## Video Location: https://www.youtube.com/watch?v=LSgMHV8-tzU
 
 <B>Files:</B><BR>
 <PRE>
