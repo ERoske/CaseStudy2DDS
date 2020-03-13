@@ -1,7 +1,8 @@
 # MSDS-6306
+# Case Study 2
 ## PURPOSE: Public Repository for Classwork
-## PROJECT: Analyze Budweiser craft beer/brewery data
-## Video Location: https://www.youtube.com/watch?v=LSgMHV8-tzU
+## PROJECT: Analyze Frito-Lay employee data
+## Video Location: https://youtu.be/Zh2QGf2OTfE
 
 <B>Files:</B><BR>
 <PRE>
