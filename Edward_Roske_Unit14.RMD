@@ -19,8 +19,14 @@ knitr::opts_chunk$set(echo = TRUE)
 ## **Links**
 ## GitHub
 <https://github.com/ERoske/CaseStudy2DDS>
+
+
 ## Video
 <https://www.youtube.com/watch?v=Zh2QGf2OTfE&t=2s>
+
+
+## RShiny
+<https://eroske.shinyapps.io/Frito/>
 
 ***
 
@@ -681,6 +687,11 @@ testEmp %>%
 ## **Links**
 ## GitHub
 <https://github.com/ERoske/CaseStudy2DDS>
+
+
 ## Video
 <https://www.youtube.com/watch?v=Zh2QGf2OTfE&t=2s>
 
+
+## RShiny
+<https://eroske.shinyapps.io/Frito/>
