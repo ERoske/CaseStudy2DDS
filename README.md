@@ -3,9 +3,11 @@
 ## PURPOSE: Public Repository for Classwork
 ## PROJECT: Analyze Frito-Lay employee data
 ## Video Location: https://youtu.be/Zh2QGf2OTfE
+## RShiny Location: https://eroske.shinyapps.io/Frito/
 
 <B>Files:</B><BR>
 <PRE>
+<B>app.R</B>                                           R: Shiny App
 <B>Case2PredictionsRoske Attrition.csv</B>             Data: Attrition (predicted)
 <B>Case2PredictionsRoske Salary.csv</B>                Data: Salary (predicted)
 <B>CaseStudy2CompSet No Attrition.csv</B>              Data: Attrition (no)
