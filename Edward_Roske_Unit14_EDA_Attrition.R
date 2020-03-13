@@ -235,7 +235,7 @@ print(rf_default)
 
 # Finetune the results
 set.seed(1234)
-tuneGrid <- expand.grid(.mtry = c(1: 20))
+tuneGrid <- expand.grid(.mtry = c(2:10))
 rf_mtry <- train(Attrition~.,
                  data = trainEmp,
                  method = "rf",
@@ -323,6 +323,7 @@ trControl <- trainControl(method = "cv",
                           number = 10,
                           search = "grid")
 rf.modelEmp <- train(Attrition~.,
+                        #data=trainEmp[,-14],   # If we want to leave out ID
                         data=trainEmp,
                         method = "rf",
                         metric = "Accuracy",
@@ -334,8 +335,10 @@ rf.modelEmp <- train(Attrition~.,
                         nodesize=14,
                         maxnodes=best_maxnodes)
 rfClassifications <- predict(rf.modelEmp,
+                             #newdata=testEmp[,-14])   # If we want to leave out ID
                              newdata=testEmp)
 table(testEmp$Attrition, rfClassifications)
 (rfCM <- confusionMatrix(table(testEmp$Attrition,
                                rfClassifications)))
 round(randomForest::importance(rf.modelEmp), 2)
+plot(varImp(rf.modelEmp))
