@@ -23,16 +23,9 @@ ui <- fluidPage(
 
         # Sidebar panel for inputs ----
         sidebarPanel(
-
-            #Input: Slider for the number of bins ----
-            sliderInput(inputId = "bins",
-                        label = "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 10),
-
-            #Copy the line below to make a select box
-            selectInput("select", label = h3("Metric"),
+            # Input: Select Box
+            # Metric
+            selectInput("metric", label = h3("Metric"),
                         choices = list(
                             "Hourly Rate"="HourlyRate",
                             "Monthly Rate"="MonthlyRate",
@@ -40,7 +33,28 @@ ui <- fluidPage(
                             "Years at Company"="YearsAtCompany",
                             "Years in Current Role"="YearsInCurrentRole"
                                        ),
+                        selected = 3),
+
+            # Input: Select Box
+            # Chart Type
+            selectInput("chart", label=h3("Chart Type:"),
+                        choices = list("Boxplot"="box", "Histogram"="hist"),
                         selected = 1),
+
+            # Input: Select Box
+            # Category
+            selectInput("category", label=h3("Category for boxplot:"),
+                        choices = list("Attrition", "Department", "Gender", "OverTime"),
+                        selected = 3),
+
+            #Input: Slider for the number of bins ----
+            sliderInput(inputId = "bins",
+                        label = "Number of bins for histograms:",
+                        min = 1,
+                        max = 50,
+                        value = 10),
+
+
             hr(),
             fluidRow(column(3, verbatimTextOutput("value")))
         ),
@@ -48,7 +62,7 @@ ui <- fluidPage(
         # Main panel for displaying outputs ----
         mainPanel(
 
-            # Output: Histogram ----
+            # Output: Chart ----
             plotOutput(outputId = "distPlot")
 
         )
@@ -58,57 +72,63 @@ ui <- fluidPage(
 
 # Define server logic required to draw a histogram ----
 server <- function(input, output) {
-
-    # Histogram of Employee Data ----
-    # with requested number of bins
-    # This expression that generates a histogram is wrapped in a call
-    # to renderPlot to indicate that:
-    #
+    # renderPlot indicates that:
     # 1. It is "reactive" and therefore should be automatically
-    #    re-executed when inputs (input$bins) change
+    #    re-executed when inputs change
     # 2. Its output type is a plot
     output$distPlot <- renderPlot({
 
-        if(input$select == "HourlyRate")
+        # Metric
+        # if(input$metric == "HourlyRate")
+        #     { x    <- emp$HourlyRate
+        #       y    <- "HourlyRate~Gender" }
+        # if(input$metric == "MonthlyRate")
+        #     { x    <- emp$MonthlyRate
+        #       y    <- "MonthlyRate~Gender" }
+        # if(input$metric == "MonthlyIncome")
+        #     { x    <- emp$MonthlyIncome
+        #       y    <- "MonthlyIncome~Gender" }
+        # if(input$metric == "YearsAtCompany")
+        #     { x    <- emp$YearsAtCompany
+        #       y    <- "YearsAtCompany~Gender" }
+        # if(input$metric == "YearsInCurrentRole")
+        #     { x    <- emp$YearsInCurrentRole
+        #       y    <- "YearsInCurrentRole~Gender" }
+
+        if(input$metric == "HourlyRate")
+        { x    <- emp$HourlyRate }
+        if(input$metric == "MonthlyRate")
+        { x    <- emp$MonthlyRate }
+        if(input$metric == "MonthlyIncome")
+        { x    <- emp$MonthlyIncome }
+        if(input$metric == "YearsAtCompany")
+        { x    <- emp$YearsAtCompany }
+        if(input$metric == "YearsInCurrentRole")
+        { x    <- emp$YearsInCurrentRole }
+
+
+        # Chart Type
+        if(input$chart == "hist")
         {
-            x    <- emp$HourlyRate
             bins <- seq(min(x), max(x), length.out = input$bins + 1)
-            hist(x, breaks = bins, col = "#75AADB", border = "white",
-                 xlab = "Hourly Rate",
-                 main = "Histogram of Employee Data")
+            hist(x,
+                 ylab="Count",
+                 xlab=input$metric,
+                 col="purple",
+                 main=paste("Histogram of Employee Data:", input$metric)
+            )
         }
-        if(input$select == "MonthlyRate")
+        if(input$chart == "box")
         {
-            x    <- emp$MonthlyRate
-            bins <- seq(min(x), max(x), length.out = input$bins + 1)
-            hist(x, breaks = bins, col = "#75AADB", border = "white",
-                 xlab = "Monthly Rate",
-                 main = "Histogram of Employee Data")
+            boxplot(as.formula(paste(input$metric,input$category,sep="~")), data=emp,
+                    xlab=input$category,
+                    ylab=input$metric,
+                    col=(c("red","blue")),
+                    main=paste("Boxplot of Employee Data:", input$metric)
+                                )
         }
-        if(input$select == "MonthlyIncome")
-        {
-            x    <- emp$MonthlyIncome
-            bins <- seq(min(x), max(x), length.out = input$bins + 1)
-            hist(x, breaks = bins, col = "#75AADB", border = "white",
-                 xlab = "Monthly Income",
-                 main = "Histogram of Employee Data")
-        }
-        if(input$select == "YearsAtCompany")
-        {
-            x    <- emp$YearsAtCompany
-            bins <- seq(min(x), max(x), length.out = input$bins + 1)
-            hist(x, breaks = bins, col = "#75AADB", border = "white",
-                 xlab = "Years at Company",
-                 main = "Histogram of Employee Data")
-        }
-        if(input$select == "YearsInCurrentRole")
-        {
-            x    <- emp$YearsInCurrentRole
-            bins <- seq(min(x), max(x), length.out = input$bins + 1)
-            hist(x, breaks = bins, col = "#75AADB", border = "white",
-                 xlab = "Years In Current Role",
-                 main = "Histogram of Employee Data")
-        }
+
+
 
             })
 
