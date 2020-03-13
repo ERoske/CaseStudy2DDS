@@ -9,9 +9,9 @@
 <B>Case2PredictionsRoske Attrition.csv</B>             Data: Attrition (predicted)
 <B>Case2PredictionsRoske Salary.csv</B>                Data: Salary (predicted)
 <B>CaseStudy2CompSet No Attrition.csv</B>              Data: Attrition (no)
-<B>CaseStudy2CompSet No Salary.csv</B>                 Data: Breweries (no)
-<B>CaseStudy2-data.csv</B>                             Data: Breweries (871 records)
-<B>CaseStudy2-data-with_lm.csv</B>                     Data: Breweries (1171 records)
+<B>CaseStudy2CompSet No Salary.csv</B>                 Data: Salary (no)
+<B>CaseStudy2-data.csv</B>                             Data: Employee (871 records)
+<B>CaseStudy2-data-with_lm.csv</B>                     Data: Employee with Salary Predictions (1171 records)
 <B>Edward_Roske_Unit14.htm</B>                         Knit HTML File
 <B>Edward_Roske_Unit14.mp4</B>                         Video: Frito-Lay Presentation
 <B>Edward_Roske_Unit14.pptx</B>                        Presentation: Frito-Lay Slides
